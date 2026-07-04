@@ -82,7 +82,7 @@ useEffect(() => {
 
         cargarDatos();
 
-    }, 15000); // 15 segundos
+    }, 180000); // 3 minutos
 
     return () => clearInterval(intervalo);
 

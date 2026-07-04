@@ -41,7 +41,7 @@ function Mayorista() {
 
         cargarDatos();
 
-    }, 15000);
+    }, 180000);
 
     return () => clearInterval(intervalo);
 

@@ -42,7 +42,7 @@ useEffect(() => {
 
     const intervalo = setInterval(
         cargarDatos,
-        15000
+        180000
     );
 
     return () => clearInterval(intervalo);
