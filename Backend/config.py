@@ -1,4 +1,9 @@
-DB_HOST = "172.27.201.12"
-DB_USER = "NOC"
-DB_PASS = "NOC-2024observium"
-DB_NAME = "observium"
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DB_HOST = os.getenv("DB_HOST")
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
+DB_NAME = os.getenv("DB_NAME")
