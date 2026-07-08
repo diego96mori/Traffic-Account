@@ -4,7 +4,7 @@ import Sidebar from "../components/Sidebar";
 import TrafficChart from "../components/TrafficChart";
 import KPICards from "../components/KPICards";
 import ReportePDF from "../components/ReportePDF";
-import { formatGbps } from "../utils/formatters";
+import { formatGbps, formatPeriodo } from "../utils/formatters";
 
 function ProveedoresInternacionales() {
 
@@ -311,7 +311,7 @@ const enlaces70 = datosGrafico.filter(item => {
                                         </td>
 
                                         <td>
-                                            {item.periodo}
+                                            {formatPeriodo(item.periodo)}
                                         </td>
 
                                         <td>
@@ -373,7 +373,7 @@ const enlaces70 = datosGrafico.filter(item => {
                                         </td>
 
                                         <td>
-                                            {item.periodo}
+                                            {formatPeriodo(item.periodo)}
                                         </td>
 
                                         <td>

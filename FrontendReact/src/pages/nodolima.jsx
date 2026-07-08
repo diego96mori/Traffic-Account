@@ -4,7 +4,7 @@ import Sidebar from "../components/Sidebar";
 import TrafficChart from "../components/TrafficChart";
 import KPICards from "../components/KPICards";
 import ReportePDF from "../components/ReportePDF";
-import { formatGbps } from "../utils/formatters";
+import { formatGbps, formatPeriodo } from "../utils/formatters";
 
 const ANILLO_SIN_CLASIFICAR = "SIN ANILLO";
 
@@ -541,7 +541,7 @@ datosGrafico = Object.values(agrupado).map(item => ({
                         <tr key={index}>
 
                             <td>{item.bill_name}</td>
-                            <td>{item.periodo}</td>
+                            <td>{formatPeriodo(item.periodo)}</td>
                             <td>{formatGbps(item.capacidad)}</td>
                             <td>{formatGbps(item.uso)}</td>
                             <td>{item.porcentaje_uso}%</td>
@@ -589,7 +589,7 @@ datosGrafico = Object.values(agrupado).map(item => ({
                         <tr key={index}>
 
                             <td>{item.bill_name}</td>
-                            <td>{item.periodo}</td>
+                            <td>{formatPeriodo(item.periodo)}</td>
                             <td>{formatGbps(item.capacidad)}</td>
                             <td>{formatGbps(item.uso)}</td>
                             <td>{item.porcentaje_uso}%</td>

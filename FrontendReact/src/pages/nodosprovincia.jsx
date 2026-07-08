@@ -4,7 +4,7 @@ import Sidebar from "../components/Sidebar";
 import TrafficChart from "../components/TrafficChart";
 import KPICards from "../components/KPICards";
 import ReportePDF from "../components/ReportePDF";
-import { formatGbps } from "../utils/formatters";
+import { formatGbps, formatPeriodo } from "../utils/formatters";
 
 function NodosProvincia() {
 
@@ -375,7 +375,7 @@ if (
                     <tr key={index}>
 
                         <td>{item.bill_name}</td>
-                        <td>{item.periodo}</td>
+                        <td>{formatPeriodo(item.periodo)}</td>
                         <td>{formatGbps(item.capacidad)}</td>
                         <td>{formatGbps(item.uso)}</td>
                         <td>{item.porcentaje_uso}%</td>
@@ -423,7 +423,7 @@ if (
                     <tr key={index}>
 
                         <td>{item.bill_name}</td>
-                        <td>{item.periodo}</td>
+                        <td>{formatPeriodo(item.periodo)}</td>
                         <td>{formatGbps(item.capacidad)}</td>
                         <td>{formatGbps(item.uso)}</td>
                         <td>{item.porcentaje_uso}%</td>

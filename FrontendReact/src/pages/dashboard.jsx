@@ -4,7 +4,7 @@ import Sidebar from "../components/Sidebar";
 import TrafficChart from "../components/TrafficChart";
 import KPICards from "../components/KPICards";
 import ReportePDF from "../components/ReportePDF";
-import { formatGbps } from "../utils/formatters";
+import { formatGbps, formatPeriodo } from "../utils/formatters";
 import {
   ResponsiveContainer,
   LineChart,
@@ -416,7 +416,7 @@ for (const mes of mesesDisponiblesAnioActual) {
                            {enlaces5070.map((item, index) => (
                                     <tr key={index}>
                                         <td>{item.bill_name}</td>
-                                        <td>{item.periodo}</td>
+                                        <td>{formatPeriodo(item.periodo)}</td>
                                         <td>{formatGbps(item.capacidad)}</td>
                                         <td>{formatGbps(item.uso)}</td>
                                         <td>{item.porcentaje_uso}%</td>
@@ -450,7 +450,7 @@ for (const mes of mesesDisponiblesAnioActual) {
                 {enlaces70.map((item, index) => (
                                     <tr key={index}>
                                         <td>{item.bill_name}</td>
-                                        <td>{item.periodo}</td>
+                                        <td>{formatPeriodo(item.periodo)}</td>
                                         <td>{formatGbps(item.capacidad)}</td>
                                         <td>{formatGbps(item.uso)}</td>
                                         <td>{item.porcentaje_uso}%</td>
@@ -750,7 +750,7 @@ Resumen del último mes
     {item.bill_name}
 </td>
 
-<td>{item.periodo}</td>
+<td>{formatPeriodo(item.periodo)}</td>
 
 <td>{formatGbps(item.capacidad)}</td>
 
