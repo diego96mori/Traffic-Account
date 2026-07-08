@@ -13,6 +13,8 @@ import {
 } from "recharts";
 
 function TrafficChart({ data, medida = "Gbps" }) {
+  const COLOR_INBOUND = "#7e22ce";
+  const COLOR_OUTBOUND = "#0033cc";
 
   const datosOrdenados = [...data].sort((a, b) => {
     if (a.anio !== b.anio) {
@@ -209,11 +211,11 @@ function TrafficChart({ data, medida = "Gbps" }) {
           type="monotone"
           dataKey="inbound"
           name="Inbound"
-          stroke="#d81b60"
+          stroke={COLOR_INBOUND}
           strokeWidth={3}
           dot={{
             r: 4,
-            fill: "#d81b60"
+            fill: COLOR_INBOUND
           }}
           activeDot={{ r: 7 }}
         >
@@ -265,11 +267,11 @@ function TrafficChart({ data, medida = "Gbps" }) {
           type="monotone"
           dataKey="outbound"
           name="Outbound"
-          stroke="#0033cc"
+          stroke={COLOR_OUTBOUND}
           strokeWidth={3}
           dot={{
             r: 4,
-            fill: "#0033cc"
+            fill: COLOR_OUTBOUND
           }}
           activeDot={{ r: 7 }}
         >
