@@ -6,11 +6,14 @@ import KPICards from "../components/KPICards";
 import ReportePDF from "../components/ReportePDF";
 import { formatGbps } from "../utils/formatters";
 
+const ANILLO_SIN_CLASIFICAR = "SIN ANILLO";
+
 function NodosLima() {
 
     const [loading, setLoading] = useState(true);
     const [datos, setDatos] = useState([]);
 
+    const [anilloSeleccionado, setAnilloSeleccionado] = useState("");
     const [subgrupoSeleccionado, setSubgrupoSeleccionado] = useState("");
     const [billSeleccionado, setBillSeleccionado] = useState("");
     const [anioSeleccionado, setAnioSeleccionado] = useState("");
@@ -53,9 +56,44 @@ function NodosLima() {
         item => item.grupo === "NODOS LIMA"
     );
 
+    const obtenerAnillo = (item) =>
+        item.anillo || ANILLO_SIN_CLASIFICAR;
+
+    const anillos = [
+        ...new Set(
+            datosNodosLima
+                .map(item => obtenerAnillo(item))
+                .filter(Boolean)
+        )
+    ].sort((a, b) => {
+        if (a === ANILLO_SIN_CLASIFICAR) return 1;
+        if (b === ANILLO_SIN_CLASIFICAR) return -1;
+        return a.localeCompare(b);
+    });
+
+    useEffect(() => {
+
+        if (
+            anillos.length > 0 &&
+            !anilloSeleccionado
+        ) {
+
+            setAnilloSeleccionado(
+                anillos[0]
+            );
+
+        }
+
+    }, [anillos, anilloSeleccionado]);
+
     const subgrupos = [
         ...new Set(
             datosNodosLima
+                .filter(
+                    item =>
+                        obtenerAnillo(item) ===
+                        anilloSeleccionado
+                )
                 .map(item => item.subgrupo)
                 .filter(Boolean)
         )
@@ -75,6 +113,24 @@ function NodosLima() {
         }
 
     }, [subgrupos, subgrupoSeleccionado]);
+
+    useEffect(() => {
+
+        if (
+            subgrupoSeleccionado &&
+            !datosNodosLima.some(
+                item =>
+                    item.subgrupo === subgrupoSeleccionado &&
+                    obtenerAnillo(item) === anilloSeleccionado
+            )
+        ) {
+
+            setSubgrupoSeleccionado("");
+            setBillSeleccionado("");
+
+        }
+
+    }, [anilloSeleccionado, subgrupoSeleccionado]);
 
     const bills = [
         ...new Set(
@@ -229,6 +285,7 @@ datosGrafico = Object.values(agrupado).map(item => ({
 
     if (
     loading ||
+    !anilloSeleccionado ||
     !subgrupoSeleccionado ||
     !billSeleccionado
 ) {
@@ -257,6 +314,40 @@ datosGrafico = Object.values(agrupado).map(item => ({
             <main className="dashboard-content">
 
                 <div className="filters-container">
+
+                    <div className="filter-item">
+
+                        <label>Anillo:</label>
+
+                        <select
+                            value={anilloSeleccionado}
+                            onChange={(e) => {
+
+                                setAnilloSeleccionado(
+                                    e.target.value
+                                );
+
+                                setSubgrupoSeleccionado("");
+                                setBillSeleccionado("");
+                            }}
+                        >
+
+                            {anillos.map(
+                                (anillo) => (
+
+                                    <option
+                                        key={anillo}
+                                        value={anillo}
+                                    >
+                                        {anillo}
+                                    </option>
+
+                                )
+                            )}
+
+                        </select>
+
+                    </div>
 
                     <div className="filter-item">
 

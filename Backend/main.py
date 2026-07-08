@@ -84,7 +84,8 @@ def bills():
                 "bill_id": bill["bill_id"],
                 "bill_name": bill["bill_name"],
                 "grupo": datos_clasificacion.get("grupo", "SIN CLASIFICAR"),
-                "subgrupo": datos_clasificacion.get("subgrupo", "")
+                "subgrupo": datos_clasificacion.get("subgrupo", ""),
+                "anillo": datos_clasificacion.get("anillo", "")
             })
 
         return resultado
@@ -142,6 +143,7 @@ def trafico():
             "bill_name": item["bill_name"],
             "grupo": datos_clasificacion.get("grupo", "SIN CLASIFICAR"),
             "subgrupo": datos_clasificacion.get("subgrupo", ""),
+            "anillo": datos_clasificacion.get("anillo", ""),
             "anio": item["anio"],
             "mes": item["mes"],
             "periodo": item["periodo"],
