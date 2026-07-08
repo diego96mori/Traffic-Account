@@ -351,7 +351,7 @@ datosGrafico = Object.values(agrupado).map(item => ({
 
                     <div className="filter-item">
 
-                        <label>Subgrupo:</label>
+                        <label>Nodo:</label>
 
                         <select
                             value={subgrupoSeleccionado}
