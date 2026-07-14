@@ -221,7 +221,6 @@ function ResumenOLT() {
                     <div>
                         <span className="resumen-olt-eyebrow">MONITOREO DE CAPACIDAD</span>
                         <h1>Resumen OLT</h1>
-                        <p>Vista consolidada de utilización para los últimos tres periodos disponibles.</p>
                     </div>
                     <span className="resumen-olt-live"><i /> Datos actualizados</span>
                 </div>

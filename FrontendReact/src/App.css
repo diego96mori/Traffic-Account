@@ -281,11 +281,13 @@ th {
 }
 
 .resumen-olt-heading {
+  position: relative;
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: center;
   gap: 24px;
   margin-bottom: 24px;
+  text-align: center;
 }
 
 .resumen-olt-heading h1 {
@@ -308,6 +310,9 @@ th {
 }
 
 .resumen-olt-live {
+  position: absolute;
+  top: 0;
+  right: 0;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -331,7 +336,7 @@ th {
 
 .resumen-olt-filters {
   width: fit-content;
-  margin-bottom: 24px;
+  margin: 0 auto 24px;
   padding: 14px 16px;
   border: 1px solid var(--olt-line);
   border-radius: 14px;
@@ -658,6 +663,8 @@ th {
 @media (max-width: 720px) {
   .resumen-olt-page { padding: 22px 16px 36px; }
   .resumen-olt-heading { flex-direction: column; }
+  .resumen-olt-heading { align-items: center; }
+  .resumen-olt-live { position: static; }
   .resumen-olt-kpis { grid-template-columns: 1fr; }
   .resumen-olt-filters { width: 100%; }
   .resumen-olt-filters .filter-item,
