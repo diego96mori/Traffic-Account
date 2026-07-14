@@ -157,6 +157,17 @@ function Sidebar() {
           Tráfico Internacional
         </NavLink>
 
+        <NavLink
+          to="/resumenolt"
+          className={({ isActive }) =>
+            isActive
+              ? "sidebar-link active"
+              : "sidebar-link"
+          }
+        >
+          Resumen OLT
+        </NavLink>
+
       </nav>
 
     </aside>

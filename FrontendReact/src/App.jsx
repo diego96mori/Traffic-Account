@@ -18,6 +18,7 @@ import ProveedoresProvincia from "./pages/proveedoresprovincia";
 import ProveedoresInternacionales from "./pages/internacionales";
 import Core from "./pages/core";
 import OLTLima from "./pages/oltlima";
+import ResumenOLT from "./pages/resumenolt";
 
 function App() {
   return (
@@ -64,6 +65,11 @@ function App() {
         <Route
           path="/oltprovincia"
           element={<OLTProvincia />}
+        />
+
+        <Route
+          path="/resumenolt"
+          element={<ResumenOLT />}
         />
 
         {/* CDN */}

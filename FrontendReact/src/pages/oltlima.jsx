@@ -73,6 +73,7 @@ function OLTLima() {
 
     const obtenerAnillo = (item) => {
         if (item.anillo) return item.anillo;
+        if (item.subgrupo === "ENSENADA") return "NORTE";
 
         const nodoEquivalente = aliasNodo[item.subgrupo] || item.subgrupo;
         return anilloPorNodo.get(nodoEquivalente) || ANILLO_SIN_CLASIFICAR;
