@@ -804,15 +804,15 @@ Resumen de los últimos tres meses
     }}
 >
 
-<th>Bill</th>
-<th>Capacidad</th>
+<th>Enlace</th>
+<th>Capacidad - Gbps</th>
 {ultimosTresPeriodos.map(periodo => (
     <th key={`${periodo.anio}-${periodo.mes}`}>
-        Periodo ({mesesNombre[periodo.mes - 1]})
+        Periodo ({mesesNombre[periodo.mes - 1]}) - Gbps
     </th>
 ))}
-<th>Uso</th>
-<th>% Uso</th>
+<th>Uso - Gbps</th>
+<th>%Uso</th>
 
 </tr>
 

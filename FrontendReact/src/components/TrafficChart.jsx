@@ -209,9 +209,9 @@ function TrafficChart({
           border: "1px solid #6b7280"
         }}
       >
-        <span style={{ background: "repeating-linear-gradient(to bottom, #00c853 0 8px, #ffffff 8px 16px)" }} />
-        <span style={{ background: "repeating-linear-gradient(to bottom, #ffb300 0 8px, #ffffff 8px 16px)" }} />
-        <span style={{ background: "repeating-linear-gradient(to bottom, #ff1744 0 8px, #ffffff 8px 16px)" }} />
+        <span style={{ background: "repeating-linear-gradient(to bottom, #00c853 0 4px, #ffffff 4px 8px)" }} />
+        <span style={{ background: "repeating-linear-gradient(to bottom, #ffb300 0 4px, #ffffff 4px 8px)" }} />
+        <span style={{ background: "repeating-linear-gradient(to bottom, #ff1744 0 4px, #ffffff 4px 8px)" }} />
       </div>
       <div style={{ marginTop: "7px", fontWeight: "bold", textAlign: "center" }}>
         Capacidad de enlace
