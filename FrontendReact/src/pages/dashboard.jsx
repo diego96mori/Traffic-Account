@@ -166,30 +166,57 @@ const enlaces70 = datosGrafico.filter(item => {
 // ÚLTIMO MES
 //=========================
 
-const ultimoRegistro = [...datos]
-    .sort((a,b)=>{
-
-        if(a.anio!==b.anio){
-            return b.anio-a.anio;
-        }
-
-        return b.mes-a.mes;
-
-    })[0];
-
-const ultimoMes = Number(ultimoRegistro?.mes);
-const ultimoAnio = Number(ultimoRegistro?.anio);
-
-const resumenUltimoMes = datos
-    .filter(item=>
-
-        Number(item.anio)===ultimoAnio &&
-        Number(item.mes)===ultimoMes
-
+const ultimosTresPeriodos = [
+    ...new Map(
+        datos
+            .map(item => ({
+                anio: Number(item.anio),
+                mes: Number(item.mes)
+            }))
+            .filter(periodo =>
+                Number.isFinite(periodo.anio) &&
+                periodo.mes >= 1 &&
+                periodo.mes <= 12
+            )
+            .map(periodo => [
+                `${periodo.anio}-${periodo.mes}`,
+                periodo
+            ])
+    ).values()
+]
+    .sort((a, b) =>
+        a.anio === b.anio
+            ? a.mes - b.mes
+            : a.anio - b.anio
     )
-    .sort((a,b)=>
-        a.bill_name.localeCompare(b.bill_name)
-    );
+    .slice(-3);
+
+const resumenUltimosTresMeses = [
+    ...new Set(datos.map(item => item.bill_name))
+]
+    .sort((a, b) => a.localeCompare(b))
+    .map(bill => {
+        const registrosPorPeriodo = Object.fromEntries(
+            datos
+                .filter(item => item.bill_name === bill)
+                .map(item => [
+                    `${Number(item.anio)}-${Number(item.mes)}`,
+                    item
+                ])
+        );
+        const ultimoPeriodo = ultimosTresPeriodos.at(-1);
+        const ultimoItem = ultimoPeriodo
+            ? registrosPorPeriodo[`${ultimoPeriodo.anio}-${ultimoPeriodo.mes}`]
+            : null;
+
+        return {
+            bill_name: bill,
+            capacidad: ultimoItem?.capacidad,
+            uso: ultimoItem?.uso,
+            porcentaje_uso: ultimoItem?.porcentaje_uso,
+            registrosPorPeriodo
+        };
+    });
 
 
 const anioComparativo = Math.max(
@@ -759,7 +786,7 @@ for (const mes of mesesDisponiblesAnioComparativo) {
         marginBottom: "15px"
     }}
 >
-Resumen del último mes
+Resumen de los últimos tres meses
 </h3>
 
 <table
@@ -778,8 +805,12 @@ Resumen del último mes
 >
 
 <th>Bill</th>
-<th>Periodo</th>
 <th>Capacidad</th>
+{ultimosTresPeriodos.map(periodo => (
+    <th key={`${periodo.anio}-${periodo.mes}`}>
+        Periodo ({mesesNombre[periodo.mes - 1]})
+    </th>
+))}
 <th>Uso</th>
 <th>% Uso</th>
 
@@ -789,7 +820,7 @@ Resumen del último mes
 
 <tbody>
 
-{resumenUltimoMes.map((item,index)=>(
+{resumenUltimosTresMeses.map((item,index)=>(
 
 <tr key={index}>
 
@@ -813,9 +844,19 @@ Resumen del último mes
     {item.bill_name}
 </td>
 
-<td>{formatPeriodo(item.periodo)}</td>
-
 <td>{formatGbps(item.capacidad)}</td>
+
+{ultimosTresPeriodos.map(periodo => {
+    const registro = item.registrosPorPeriodo[
+        `${periodo.anio}-${periodo.mes}`
+    ];
+
+    return (
+        <td key={`${item.bill_name}-${periodo.anio}-${periodo.mes}`}>
+            {registro ? formatGbps(registro.uso) : "-"}
+        </td>
+    );
+})}
 
 <td>{formatGbps(item.uso)}</td>
 
@@ -836,7 +877,9 @@ Resumen del último mes
             : "#000"
     }}
 >
-    {Number(item.porcentaje_uso).toFixed(2)}%
+    {Number.isFinite(Number(item.porcentaje_uso))
+        ? `${Number(item.porcentaje_uso).toFixed(2)}%`
+        : "-"}
 </td>
 
 </tr>

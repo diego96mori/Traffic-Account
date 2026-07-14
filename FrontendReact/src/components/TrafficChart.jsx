@@ -182,17 +182,16 @@ function TrafficChart({
   const leyendaUso = (
     <div
       style={{
-        position: "absolute",
-        top: "8px",
-        right: "24px",
-        zIndex: 2,
-        width: "270px",
-        padding: "8px 10px",
+        width: "360px",
+        padding: "12px 14px",
         border: "1px solid #6b7280",
         borderRadius: "4px",
-        background: "rgba(255, 255, 255, 0.92)",
+        background: "#ffffff",
         color: "#111827",
-        fontSize: "11px"
+        fontSize: "14px",
+        marginTop: "-18px",
+        marginBottom: "18px",
+        marginLeft: "18px"
       }}
       aria-label="Rangos de uso del enlace"
     >
@@ -205,86 +204,24 @@ function TrafficChart({
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
-          height: "15px",
-          marginTop: "3px",
+          height: "24px",
+          marginTop: "6px",
           border: "1px solid #6b7280"
         }}
       >
-        <span style={{ background: "#00c853" }} />
-        <span style={{ background: "#ffb300" }} />
-        <span style={{ background: "#ff1744" }} />
+        <span style={{ background: "repeating-linear-gradient(to bottom, #00c853 0 8px, #ffffff 8px 16px)" }} />
+        <span style={{ background: "repeating-linear-gradient(to bottom, #ffb300 0 8px, #ffffff 8px 16px)" }} />
+        <span style={{ background: "repeating-linear-gradient(to bottom, #ff1744 0 8px, #ffffff 8px 16px)" }} />
       </div>
-      <div style={{ marginTop: "4px", fontWeight: "bold" }}>
+      <div style={{ marginTop: "7px", fontWeight: "bold", textAlign: "center" }}>
         Capacidad de enlace
       </div>
-    </div>
-  );
-
-  const leyendaCapacidad = (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "flex-start",
-        alignItems: "center",
-        gap: "22px",
-        marginTop: "-18px",
-        marginBottom: "18px",
-        marginLeft: "18px",
-        fontSize: "17px",
-        fontWeight: "bold",
-        color: "#333"
-      }}
-    >
-      <span>Capacidad de enlace:</span>
-
-      <span style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-        <span
-          style={{
-            width: "20px",
-            height: "20px",
-            borderRadius: "3px",
-            border: "1px solid #9ca3af",
-            background: "linear-gradient(to bottom, #00c853 0 50%, #ffffff 50% 100%)",
-            display: "inline-block"
-          }}
-        />
-        Verde &lt; 50%
-      </span>
-
-      <span style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-        <span
-          style={{
-            width: "20px",
-            height: "20px",
-            borderRadius: "3px",
-            border: "1px solid #9ca3af",
-            background: "linear-gradient(to bottom, #ffb300 0 50%, #ffffff 50% 100%)",
-            display: "inline-block"
-          }}
-        />
-        Amarillo &gt;= 50% y &lt; 70%
-      </span>
-
-      <span style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-        <span
-          style={{
-            width: "20px",
-            height: "20px",
-            borderRadius: "3px",
-            border: "1px solid #9ca3af",
-            background: "linear-gradient(to bottom, #ff1744 0 50%, #ffffff 50% 100%)",
-            display: "inline-block"
-          }}
-        />
-        Rojo &gt;= 70%
-      </span>
     </div>
   );
 
   if (variant === "barras") {
     return (
       <div style={{ width: "100%", position: "relative" }}>
-        {leyendaUso}
         <ResponsiveContainer width="100%" height={560}>
           <BarChart
             data={datosGrafico}
@@ -438,14 +375,13 @@ function TrafficChart({
           </BarChart>
         </ResponsiveContainer>
 
-        {leyendaCapacidad}
+        {leyendaUso}
       </div>
     );
   }
 
   return (
     <div style={{ width: "100%", position: "relative" }}>
-    {leyendaUso}
     <ResponsiveContainer width="100%" height={560}>
   <ComposedChart
   data={datosGrafico}
@@ -665,7 +601,7 @@ function TrafficChart({
       </ComposedChart>
     </ResponsiveContainer>
 
-    {leyendaCapacidad}
+    {leyendaUso}
     </div>
   );
 }
