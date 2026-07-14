@@ -1,19 +1,19 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
-function KPICards({ data, medida = "Gbps" }) {
+const FACTOR_MEDIDA = {
+  Gbps: 1,
+  Mbps: 1000,
+  Kbps: 1000000
+};
 
-  const factorMedida = {
-    Gbps: 1,
-    Mbps: 1000,
-    Kbps: 1000000
-  };
+function KPICards({ data, medida = "Gbps", periodoActivo = null }) {
 
-  const convertirMedida = (valor) => {
+  const convertirMedida = useCallback((valor) => {
     const valorConvertido =
-      Number(valor || 0) * (factorMedida[medida] || 1);
+      Number(valor || 0) * (FACTOR_MEDIDA[medida] || 1);
 
     return valorConvertido.toFixed(2);
-  };
+  }, [medida]);
 
   const resumen = useMemo(() => {
 
@@ -38,7 +38,15 @@ function KPICards({ data, medida = "Gbps" }) {
 
     });
 
-    const ultimo = ordenado[ordenado.length - 1];
+    const periodoActualizado = periodoActivo
+      ? ordenado.find(item =>
+          item.bill_id === periodoActivo.bill_id &&
+          Number(item.anio) === Number(periodoActivo.anio) &&
+          Number(item.mes) === Number(periodoActivo.mes)
+        )
+      : null;
+
+    const ultimo = periodoActualizado || ordenado[ordenado.length - 1];
 
     const usoGbps =
       Number(ultimo.uso || 0);
@@ -87,7 +95,7 @@ function KPICards({ data, medida = "Gbps" }) {
       mayor50
     };
 
-  }, [data, medida]);
+  }, [data, convertirMedida, periodoActivo]);
 
   return (
 
@@ -144,7 +152,7 @@ function KPICards({ data, medida = "Gbps" }) {
 <div className="kpi-card">
 
   <h3 className="kpi-title-months">
-    Meses &gt; 70%
+    Meses &ge; 70%
   </h3>
 
   <h1 className="kpi-counter">

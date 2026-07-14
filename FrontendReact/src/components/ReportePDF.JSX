@@ -150,8 +150,8 @@ function ReportePDF({
                     head: [[
                         "Bill Name",
                         "Periodo",
-                        "Capacidad",
-                        "Uso",
+                        "Capacidad (Gbps)",
+                        "Uso (Gbps)",
                         "% Uso"
                     ]],
                     body: [[

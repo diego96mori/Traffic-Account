@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "../service/api";
 import Sidebar from "../components/Sidebar";
 import TrafficChart from "../components/TrafficChart";
@@ -19,6 +19,11 @@ function NodosLima() {
     const [anioSeleccionado, setAnioSeleccionado] = useState("");
 
     const [mostrarTotal, setMostrarTotal] = useState(false);
+    const [periodoActivo, setPeriodoActivo] = useState(null);
+
+    const actualizarPeriodoActivo = useCallback((periodo) => {
+        setPeriodoActivo(periodo);
+    }, []);
 
   useEffect(() => {
 
@@ -30,15 +35,12 @@ function NodosLima() {
             })
             .catch((error) => {
                 console.log(error);
-            });
+            })
+            .finally(() => setLoading(false));
 
     };
 
-    setLoading(true);
-
     cargarDatos();
-
-    setLoading(false);
 
     const intervalo = setInterval(() => {
 
@@ -130,7 +132,7 @@ function NodosLima() {
 
         }
 
-    }, [anilloSeleccionado, subgrupoSeleccionado]);
+    }, [anilloSeleccionado, subgrupoSeleccionado, datosNodosLima]);
 
     const bills = [
         ...new Set(
@@ -175,7 +177,7 @@ function NodosLima() {
         )
     ].sort();
 
-   let datosGrafico = [];
+   let datosGrafico;
 
 if (!mostrarTotal) {
 
@@ -477,7 +479,7 @@ datosGrafico = Object.values(agrupado).map(item => ({
                 </div>
 
                 {billSeleccionado && (
-                    <KPICards data={datosGrafico} />
+                    <KPICards data={datosGrafico} periodoActivo={periodoActivo} />
                 )}
 
                 {billSeleccionado && (
@@ -504,6 +506,8 @@ datosGrafico = Object.values(agrupado).map(item => ({
 
                             <TrafficChart
                                 data={datosGrafico}
+                                variant="barras"
+                                onPeriodoActivo={actualizarPeriodoActivo}
                             />
 
                         </div>

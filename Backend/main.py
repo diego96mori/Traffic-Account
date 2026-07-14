@@ -2,10 +2,11 @@ from pathlib import Path
 
 import pandas as pd
 import pymysql
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import conectar
+from config import CORS_ORIGINS
 
 app = FastAPI()
 
@@ -40,7 +41,7 @@ def consultar_bd(sql):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -90,10 +91,12 @@ def bills():
 
         return resultado
 
-    except Exception as e:
-        return {
-            "error": str(e)
-        }
+    except Exception as error:
+        print(f"Error al consultar bills: {error}")
+        raise HTTPException(
+            status_code=500,
+            detail="No se pudo consultar la lista de enlaces"
+        ) from error
 
 
 @app.get("/trafico")

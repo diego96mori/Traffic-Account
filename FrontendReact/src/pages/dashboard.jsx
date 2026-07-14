@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import api from "../service/api";
 import Sidebar from "../components/Sidebar";
 import TrafficChart from "../components/TrafficChart";
@@ -24,57 +24,76 @@ function Dashboard() {
     const [billSeleccionado, setBillSeleccionado] = useState("");
     const [anioSeleccionado, setAnioSeleccionado] = useState("");
     const [mostrarModal, setMostrarModal] = useState(false);
+    const [error, setError] = useState("");
+    const [advertencia, setAdvertencia] = useState("");
+    const [periodoActivo, setPeriodoActivo] = useState(null);
     const datosAnillosTotales = [];
     const mesesNombre = [
         "Ene","Feb","Mar","Abr","May","Jun",
         "Jul","Ago","Sep","Oct","Nov","Dic"
     ];
 
-    useEffect(() => {
+    const actualizarPeriodoActivo = useCallback((periodo) => {
+        setPeriodoActivo((periodoActual) => {
+            if (!periodo) return periodoActual ? null : periodoActual;
 
-    if (datos.length > 0 && !billSeleccionado) {
+            const esElMismoPeriodo =
+                periodoActual?.bill_id === periodo.bill_id &&
+                Number(periodoActual?.anio) === Number(periodo.anio) &&
+                Number(periodoActual?.mes) === Number(periodo.mes);
 
-        const primerBill = [
-            ...new Set(
-                datos.map(item => item.bill_name)
-            )
-        ].sort()[0];
-
-        setBillSeleccionado(primerBill);
-    }
-
-}, [datos, billSeleccionado]);
+            return esElMismoPeriodo ? periodoActual : periodo;
+        });
+    }, []);
 
 useEffect(() => {
+    let activo = true;
 
-    const cargarDatos = () => {
+    const cargarDatos = async (esCargaInicial = false) => {
+        if (esCargaInicial) {
+            setError("");
+        } else {
+            setAdvertencia("");
+        }
 
-        api.get("/trafico")
-            .then((response) => {
+        try {
+            const response = await api.get("/trafico");
+            const datosAnillo = response.data.filter(
+                item => item.grupo === "TRAFICO POR ANILLO"
+            );
 
-                const datosAnillo =
-                    response.data.filter(
-                        item =>
-                            item.grupo ===
-                            "TRAFICO POR ANILLO"
-                    );
+            if (!activo) return;
 
-                setDatos(datosAnillo);
+            setDatos(datosAnillo);
+            setPeriodoActivo(null);
+            setBillSeleccionado((billActual) => {
+                const billsDisponibles = [
+                    ...new Set(datosAnillo.map(item => item.bill_name))
+                ].sort();
 
-            })
-            .catch((error) => {
-
-                console.log(error);
-
+                return billsDisponibles.includes(billActual)
+                    ? billActual
+                    : (billsDisponibles[0] || "");
             });
+            setError("");
+            setAdvertencia("");
+        } catch (errorPeticion) {
+            if (!activo) return;
+            console.error(errorPeticion);
 
+            if (esCargaInicial) {
+                setError("No se pudieron cargar los datos de tráfico.");
+            } else {
+                setAdvertencia(
+                    "No se pudieron actualizar los datos. Se muestran los últimos disponibles."
+                );
+            }
+        } finally {
+            if (activo && esCargaInicial) setLoading(false);
+        }
     };
 
-    setLoading(true);
-
-    cargarDatos();
-
-    setLoading(false);
+    cargarDatos(true);
 
     const intervalo = setInterval(() => {
 
@@ -84,7 +103,10 @@ useEffect(() => {
 
     }, 180000); // 3 minutos
 
-    return () => clearInterval(intervalo);
+    return () => {
+        activo = false;
+        clearInterval(intervalo);
+    };
 
 }, []);
     const bills = [
@@ -93,7 +115,7 @@ useEffect(() => {
         )
     ].sort();
 
-  const datosGrafico = datos.filter(item => {
+  const datosGrafico = useMemo(() => datos.filter(item => {
 
     if (item.bill_name !== billSeleccionado) {
         return false;
@@ -107,7 +129,7 @@ useEffect(() => {
     }
 
     return true;
-});
+}), [datos, billSeleccionado, anioSeleccionado]);
 
 //==================================
 // TABLAS DINÁMICAS
@@ -170,18 +192,22 @@ const resumenUltimoMes = datos
     );
 
 
-const anioActual = new Date().getFullYear();
+const anioComparativo = Math.max(
+    ...datos
+        .map(item => Number(item.anio))
+        .filter(Number.isFinite)
+);
 
-const mesesDisponiblesAnioActual = [
+const mesesDisponiblesAnioComparativo = [
     ...new Set(
         datos
-            .filter(item => Number(item.anio) === anioActual)
+            .filter(item => Number(item.anio) === anioComparativo)
             .map(item => Number(item.mes))
             .filter(mes => mes >= 1 && mes <= 12)
     )
 ].sort((a,b) => a - b);
 
-for (const mes of mesesDisponiblesAnioActual) {
+for (const mes of mesesDisponiblesAnioComparativo) {
 
 
 
@@ -192,35 +218,35 @@ for (const mes of mesesDisponiblesAnioActual) {
   const centro = datos.find(
     d =>
       d.bill_name === "WIN-ANILLO CENTRO" &&
-      Number(d.anio) === anioActual &&
+      Number(d.anio) === anioComparativo &&
       Number(d.mes) === mes
   );
 
   const oeste = datos.find(
     d =>
       d.bill_name === "WIN-ANILLO CENTRO-OESTE" &&
-      Number(d.anio) === anioActual &&
+      Number(d.anio) === anioComparativo &&
       Number(d.mes) === mes
   );
 
   const este = datos.find(
     d =>
       d.bill_name === "WIN-ANILLO ESTE" &&
-      Number(d.anio) === anioActual &&
+      Number(d.anio) === anioComparativo &&
       Number(d.mes) === mes
   );
 
   const norte = datos.find(
     d =>
       d.bill_name === "WIN-ANILLO NORTE" &&
-      Number(d.anio) === anioActual &&
+      Number(d.anio) === anioComparativo &&
       Number(d.mes) === mes
   );
 
   const sur = datos.find(
     d =>
       d.bill_name === "WIN-ANILLO SUR" &&
-      Number(d.anio) === anioActual &&
+      Number(d.anio) === anioComparativo &&
       Number(d.mes) === mes
   );
 
@@ -233,10 +259,7 @@ for (const mes of mesesDisponiblesAnioActual) {
   datosAnillosTotales.push(fila);
 }
 
-  if (
-    loading ||
-    !billSeleccionado
-) {
+  if (loading) {
     return (
         <div
             style={{
@@ -253,6 +276,24 @@ for (const mes of mesesDisponiblesAnioActual) {
     );
 }
 
+  if (error || datos.length === 0 || !billSeleccionado) {
+    return (
+        <div
+            style={{
+                height: "100vh",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                fontSize: "20px",
+                fontWeight: "bold",
+                color: error ? "#b91c1c" : "#374151"
+            }}
+        >
+            {error || "No hay datos de tráfico por anillo disponibles."}
+        </div>
+    );
+  }
+
 
     return (
 
@@ -261,6 +302,22 @@ for (const mes of mesesDisponiblesAnioActual) {
             <Sidebar />
 
             <main className="dashboard-content">
+
+                {advertencia && (
+                    <div
+                        role="alert"
+                        style={{
+                            marginBottom: "16px",
+                            padding: "10px 14px",
+                            background: "#fef3c7",
+                            color: "#92400e",
+                            border: "1px solid #f59e0b",
+                            borderRadius: "6px"
+                        }}
+                    >
+                        {advertencia}
+                    </div>
+                )}
 
                 {/* FILTRO */}
 
@@ -279,9 +336,11 @@ for (const mes of mesesDisponiblesAnioActual) {
 
         <select
             value={billSeleccionado}
-            onChange={(e) =>
-                setBillSeleccionado(e.target.value)
-            }
+            onChange={(e) => {
+                setBillSeleccionado(e.target.value);
+                setAnioSeleccionado("");
+                setPeriodoActivo(null);
+            }}
         >
             {bills.map((bill) => (
                 <option
@@ -301,9 +360,10 @@ for (const mes of mesesDisponiblesAnioActual) {
 
         <select
             value={anioSeleccionado}
-            onChange={(e) =>
-                setAnioSeleccionado(e.target.value)
-            }
+            onChange={(e) => {
+                setAnioSeleccionado(e.target.value);
+                setPeriodoActivo(null);
+            }}
         >
             <option value="">
                 Todos
@@ -357,6 +417,7 @@ for (const mes of mesesDisponiblesAnioActual) {
 
                     <KPICards
                         data={datosGrafico}
+                        periodoActivo={periodoActivo}
                     />
 
                 )}
@@ -386,6 +447,8 @@ for (const mes of mesesDisponiblesAnioActual) {
 >
     <TrafficChart
         data={datosGrafico}
+        variant="barras"
+        onPeriodoActivo={actualizarPeriodoActivo}
     />
 </div>
                     </>
@@ -492,7 +555,7 @@ for (const mes of mesesDisponiblesAnioActual) {
 >
 
 <h2 style={{ textAlign: "center" }}>
-  Comparativo Anillos {anioActual}
+  Comparativo Anillos {anioComparativo}
 </h2>
 
 <button

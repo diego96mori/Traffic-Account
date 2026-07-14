@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "../service/api";
 import Sidebar from "../components/Sidebar";
 import TrafficChart from "../components/TrafficChart";
@@ -15,6 +15,10 @@ function CDN() {
     const [billSeleccionado, setBillSeleccionado] = useState("");
     const [anioSeleccionado, setAnioSeleccionado] = useState("");
     const [medidaSeleccionada, setMedidaSeleccionada] = useState("Gbps");
+    const [periodoActivo, setPeriodoActivo] = useState(null);
+    const actualizarPeriodoActivo = useCallback((periodo) => {
+        setPeriodoActivo(periodo);
+    }, []);
 useEffect(() => {
 
     const cargarDatos = async () => {
@@ -343,6 +347,7 @@ const enlaces70 = datosGrafico.filter(item => {
                     <KPICards
                         data={datosGrafico}
                         medida={medidaSeleccionada}
+                        periodoActivo={periodoActivo}
                     />
                 )}
 
@@ -371,6 +376,8 @@ const enlaces70 = datosGrafico.filter(item => {
                             <TrafficChart
                                 data={datosGrafico}
                                 medida={medidaSeleccionada}
+                                variant="barras"
+                                onPeriodoActivo={actualizarPeriodoActivo}
                             />
 
                         </div>

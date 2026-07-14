@@ -17,5 +17,10 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      // Los filtros encadenados se sincronizan al cambiar las opciones disponibles.
+      // Mantener estos efectos evita cambiar la experiencia actual de selección.
+      'react-hooks/set-state-in-effect': 'off',
+    },
   },
 ])

@@ -1,6 +1,8 @@
+import { memo } from "react";
 import {
   ResponsiveContainer,
   ComposedChart,
+  BarChart,
   Bar,
   Line,
   XAxis,
@@ -12,9 +14,16 @@ import {
   Cell
 } from "recharts";
 
-function TrafficChart({ data, medida = "Gbps" }) {
+function TrafficChart({
+  data,
+  medida = "Gbps",
+  variant = "lineas",
+  onPeriodoActivo
+}) {
   const COLOR_INBOUND = "#7e22ce";
   const COLOR_OUTBOUND = "#0033cc";
+  const COLOR_INBOUND_BAR = "#2dd4bf";
+  const COLOR_OUTBOUND_BAR = "#60a5fa";
 
   const datosOrdenados = [...data].sort((a, b) => {
     if (a.anio !== b.anio) {
@@ -86,6 +95,313 @@ function TrafficChart({ data, medida = "Gbps" }) {
 
   });
 
+  const colorCapacidad = (entry) => {
+    const uso = Number(entry.porcentaje_uso);
+
+    if (uso < 50) {
+      return "#00c853";
+    }
+
+    if (uso >= 50 && uso < 70) {
+      return "#ffb300";
+    }
+
+    return "#ff1744";
+  };
+
+  const gradienteCapacidad = (entry) => {
+    const uso = Number(entry.porcentaje_uso);
+
+    if (uso < 50) return "url(#capacidad-verde)";
+    if (uso < 70) return "url(#capacidad-amarillo)";
+    return "url(#capacidad-rojo)";
+  };
+
+  const renderCapacidadLabel = (props) => {
+    const {
+      x,
+      y,
+      width,
+      value
+    } = props;
+
+    const labelX = x + width / 2;
+    const labelY = y - 6;
+
+    return (
+      <text
+        x={labelX}
+        y={labelY}
+        textAnchor="middle"
+        fontSize={13}
+        fontWeight="bold"
+        fill="#111"
+      >
+        {formatearNumero(value)}
+      </text>
+    );
+  };
+
+  const renderTrafficLabel = (dataKey) => (props) => {
+    const {
+      x,
+      y,
+      width,
+      height,
+      value,
+      index
+    } = props;
+
+    const inbound = Number(datosGrafico[index]?.inbound || 0);
+    const outbound = Number(datosGrafico[index]?.outbound || 0);
+    const valorActual = Number(value || 0);
+    const mayorTrafico =
+      dataKey === "inbound"
+        ? inbound >= outbound
+        : outbound > inbound;
+
+    const etiquetaDentro = mayorTrafico && height > 34;
+    const labelX =
+      x + width / 2 + (!etiquetaDentro && dataKey === "inbound" ? -5 : 0);
+    const labelY = etiquetaDentro ? y + 15 : y - 6;
+
+    return (
+      <text
+        x={labelX}
+        y={labelY}
+        textAnchor="middle"
+        fontSize={13}
+        fontWeight="bold"
+        fill="#111"
+      >
+        {formatearNumero(valorActual)}
+      </text>
+    );
+  };
+
+  const leyendaCapacidad = (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        gap: "22px",
+        marginTop: "-18px",
+        marginBottom: "18px",
+        marginLeft: "18px",
+        fontSize: "17px",
+        fontWeight: "bold",
+        color: "#333"
+      }}
+    >
+      <span>
+        Capacidad de enlace:
+      </span>
+
+      <span style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+        <span
+          style={{
+            width: "20px",
+            height: "20px",
+            borderRadius: "3px",
+            border: "1px solid #9ca3af",
+            background: "linear-gradient(to bottom, #00c853 0 50%, #ffffff 50% 100%)",
+            display: "inline-block"
+          }}
+        />
+        Verde &lt; 50%
+      </span>
+
+      <span style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+        <span
+          style={{
+            width: "20px",
+            height: "20px",
+            borderRadius: "3px",
+            border: "1px solid #9ca3af",
+            background: "linear-gradient(to bottom, #ffb300 0 50%, #ffffff 50% 100%)",
+            display: "inline-block"
+          }}
+        />
+        Amarillo &gt;= 50% y &lt; 70%
+      </span>
+
+      <span style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+        <span
+          style={{
+            width: "20px",
+            height: "20px",
+            borderRadius: "3px",
+            border: "1px solid #9ca3af",
+            background: "linear-gradient(to bottom, #ff1744 0 50%, #ffffff 50% 100%)",
+            display: "inline-block"
+          }}
+        />
+        Rojo &gt;= 70%
+      </span>
+    </div>
+  );
+
+  if (variant === "barras") {
+    return (
+      <div style={{ width: "100%" }}>
+        <ResponsiveContainer width="100%" height={560}>
+          <BarChart
+            data={datosGrafico}
+            onMouseMove={(estado) => {
+              const indice = Number(estado?.activeTooltipIndex);
+
+              if (Number.isInteger(indice) && datosGrafico[indice]) {
+                onPeriodoActivo?.(datosGrafico[indice]);
+              }
+            }}
+            onMouseLeave={() => onPeriodoActivo?.(null)}
+            margin={{
+              top: 80,
+              right: 30,
+              left: 20,
+              bottom: 140
+            }}
+            barGap={10}
+            barCategoryGap="26%"
+          >
+            <defs>
+              <linearGradient
+                id="capacidad-verde"
+                x1="0" y1="0" x2="0" y2="20"
+                gradientUnits="userSpaceOnUse"
+                spreadMethod="repeat"
+              >
+                <stop offset="0%" stopColor="#00c853" />
+                <stop offset="50%" stopColor="#00c853" />
+                <stop offset="50%" stopColor="#ffffff" />
+                <stop offset="100%" stopColor="#ffffff" />
+              </linearGradient>
+              <linearGradient
+                id="capacidad-amarillo"
+                x1="0" y1="0" x2="0" y2="20"
+                gradientUnits="userSpaceOnUse"
+                spreadMethod="repeat"
+              >
+                <stop offset="0%" stopColor="#ffb300" />
+                <stop offset="50%" stopColor="#ffb300" />
+                <stop offset="50%" stopColor="#ffffff" />
+                <stop offset="100%" stopColor="#ffffff" />
+              </linearGradient>
+              <linearGradient
+                id="capacidad-rojo"
+                x1="0" y1="0" x2="0" y2="20"
+                gradientUnits="userSpaceOnUse"
+                spreadMethod="repeat"
+              >
+                <stop offset="0%" stopColor="#ff1744" />
+                <stop offset="50%" stopColor="#ff1744" />
+                <stop offset="50%" stopColor="#ffffff" />
+                <stop offset="100%" stopColor="#ffffff" />
+              </linearGradient>
+            </defs>
+
+            <CartesianGrid
+              strokeDasharray="3 3"
+              opacity={0.4}
+            />
+
+            <XAxis
+              dataKey="periodo_es"
+              angle={0}
+              textAnchor="middle"
+              height={65}
+              interval={0}
+              tickMargin={20}
+              tick={{
+                fontSize: 12,
+                fontWeight: "bold",
+                fill: "#333"
+              }}
+            />
+
+            <YAxis
+              label={{
+                value: medida,
+                angle: -90,
+                position: "insideLeft"
+              }}
+            />
+
+            <Tooltip
+              cursor={{ fill: "rgba(37, 99, 235, 0.06)" }}
+              formatter={(value, name) => [
+                `${formatearNumero(value)} ${medida}`,
+                name
+              ]}
+            />
+
+            <Legend
+              verticalAlign="top"
+              align="left"
+              iconType="circle"
+              height={50}
+              wrapperStyle={{
+                left: "10px",
+                top: "5px",
+                fontWeight: "bold"
+              }}
+            />
+
+            <Bar
+              dataKey="capacidad"
+              name="Capacidad del Enlace"
+              isAnimationActive={false}
+              barSize={24}
+              radius={[4, 4, 0, 0]}
+            >
+              {datosGrafico.map((entry, index) => (
+                <Cell
+                  key={`capacidad-${index}`}
+                  fill={gradienteCapacidad(entry)}
+                />
+              ))}
+
+              <LabelList
+                dataKey="capacidad"
+                content={renderCapacidadLabel}
+              />
+            </Bar>
+
+            <Bar
+              dataKey="inbound"
+              name="Inbound"
+              isAnimationActive={false}
+              fill={COLOR_INBOUND_BAR}
+              barSize={24}
+              radius={[4, 4, 0, 0]}
+            >
+              <LabelList
+                dataKey="inbound"
+                content={renderTrafficLabel("inbound")}
+              />
+            </Bar>
+
+            <Bar
+              dataKey="outbound"
+              name="Outbound"
+              isAnimationActive={false}
+              fill={COLOR_OUTBOUND_BAR}
+              barSize={24}
+              radius={[4, 4, 0, 0]}
+            >
+              <LabelList
+                dataKey="outbound"
+                content={renderTrafficLabel("outbound")}
+              />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+
+        {leyendaCapacidad}
+      </div>
+    );
+  }
 
   return (
     <div style={{ width: "100%" }}>
@@ -155,24 +471,10 @@ function TrafficChart({ data, medida = "Gbps" }) {
 
           {datosGrafico.map((entry, index) => {
 
-            const uso = Number(entry.porcentaje_uso);
-
-            let color;
-
-            if (uso < 50) {
-              color = "#00c853";
-            }
-            else if (uso >= 50 && uso < 70) {
-              color = "#ffb300";
-            }
-            else {
-              color = "#ff1744";
-            }
-
             return (
               <Cell
                 key={`cell-${index}`}
-                fill={color}
+                fill={colorCapacidad(entry)}
               />
             );
 
@@ -322,65 +624,9 @@ function TrafficChart({ data, medida = "Gbps" }) {
       </ComposedChart>
     </ResponsiveContainer>
 
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "flex-start",
-        alignItems: "center",
-        gap: "22px",
-        marginTop: "-18px",
-        marginBottom: "18px",
-        marginLeft: "18px",
-        fontSize: "17px",
-        fontWeight: "bold",
-        color: "#333"
-      }}
-    >
-      <span>
-        Capacidad de enlace:
-      </span>
-
-      <span style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-        <span
-          style={{
-            width: "16px",
-            height: "16px",
-            borderRadius: "3px",
-            background: "#00c853",
-            display: "inline-block"
-          }}
-        />
-        Verde &lt; 50%
-      </span>
-
-      <span style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-        <span
-          style={{
-            width: "16px",
-            height: "16px",
-            borderRadius: "3px",
-            background: "#ffb300",
-            display: "inline-block"
-          }}
-        />
-        Amarillo &gt;= 50% y &lt; 70%
-      </span>
-
-      <span style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-        <span
-          style={{
-            width: "16px",
-            height: "16px",
-            borderRadius: "3px",
-            background: "#ff1744",
-            display: "inline-block"
-          }}
-        />
-        Rojo &gt;= 70%
-      </span>
-    </div>
+    {leyendaCapacidad}
     </div>
   );
 }
 
-export default TrafficChart;
+export default memo(TrafficChart);

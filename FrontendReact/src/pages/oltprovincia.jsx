@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "../service/api";
 import Sidebar from "../components/Sidebar";
 import TrafficChart from "../components/TrafficChart";
@@ -14,6 +14,11 @@ function OLTProvincia() {
     const [subgrupoSeleccionado, setSubgrupoSeleccionado] = useState("");
     const [billSeleccionado, setBillSeleccionado] = useState("");
     const [anioSeleccionado, setAnioSeleccionado] = useState("");
+    const [periodoActivo, setPeriodoActivo] = useState(null);
+
+    const actualizarPeriodoActivo = useCallback((periodo) => {
+        setPeriodoActivo(periodo);
+    }, []);
 
 useEffect(() => {
 
@@ -25,15 +30,12 @@ useEffect(() => {
             })
             .catch((error) => {
                 console.log(error);
-            });
+            })
+            .finally(() => setLoading(false));
 
     };
 
-    setLoading(true);
-
     cargarDatos();
-
-    setLoading(false);
 
     const intervalo = setInterval(() => {
 
@@ -308,7 +310,7 @@ const enlaces70 = datosGrafico.filter(item => {
                 </div>
 
                 {billSeleccionado && (
-                    <KPICards data={datosGrafico} />
+                    <KPICards data={datosGrafico} periodoActivo={periodoActivo} />
                 )}
 
                 {billSeleccionado && (
@@ -335,6 +337,8 @@ const enlaces70 = datosGrafico.filter(item => {
 
                             <TrafficChart
                                 data={datosGrafico}
+                                variant="barras"
+                                onPeriodoActivo={actualizarPeriodoActivo}
                             />
 
                         </div>
