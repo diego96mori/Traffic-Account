@@ -99,8 +99,7 @@ def bills():
         ) from error
 
 
-@app.get("/trafico")
-def trafico():
+def obtener_trafico():
     clasificacion = cargar_clasificacion()
     ids_clasificados = obtener_ids_clasificados(clasificacion)
     clasificacion_map = crear_mapa_clasificacion(clasificacion)
@@ -159,3 +158,15 @@ def trafico():
         })
 
     return resultado
+
+
+@app.get("/trafico")
+def trafico():
+    try:
+        return obtener_trafico()
+    except Exception as error:
+        print(f"Error al consultar tráfico: {error}")
+        raise HTTPException(
+            status_code=500,
+            detail="No se pudieron consultar los datos de tráfico"
+        ) from error

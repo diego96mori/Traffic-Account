@@ -6,11 +6,15 @@ import KPICards from "../components/KPICards";
 import ReportePDF from "../components/ReportePDF";
 import { formatGbps, formatPeriodo } from "../utils/formatters";
 
+const ANILLO_SIN_CLASIFICAR = "SIN ANILLO";
+
 function OLTLima() {
 
     const [loading, setLoading] = useState(true);
     const [datos, setDatos] = useState([]);
+    const [error, setError] = useState("");
 
+    const [anilloSeleccionado, setAnilloSeleccionado] = useState("");
     const [subgrupoSeleccionado, setSubgrupoSeleccionado] = useState("");
     const [billSeleccionado, setBillSeleccionado] = useState("");
     const [anioSeleccionado, setAnioSeleccionado] = useState("");
@@ -27,9 +31,11 @@ function OLTLima() {
         api.get("/trafico")
             .then((response) => {
                 setDatos(response.data);
+                setError("");
             })
             .catch((error) => {
                 console.log(error);
+                setError("No se pudieron cargar los datos de tráfico.");
             })
             .finally(() => setLoading(false));
 
@@ -53,9 +59,47 @@ function OLTLima() {
         item => item.grupo === "OLT LIMA"
     );
 
+    const anilloPorNodo = new Map(
+        datos
+            .filter(item => item.grupo === "NODOS LIMA" && item.anillo)
+            .map(item => [item.subgrupo, item.anillo])
+    );
+
+    // Estos nombres representan el mismo nodo en ambas clasificaciones.
+    const aliasNodo = {
+        CHORRILLOS: "CHORRILLOS II",
+        FLAMENGOS: "FLAMENGO"
+    };
+
+    const obtenerAnillo = (item) => {
+        if (item.anillo) return item.anillo;
+
+        const nodoEquivalente = aliasNodo[item.subgrupo] || item.subgrupo;
+        return anilloPorNodo.get(nodoEquivalente) || ANILLO_SIN_CLASIFICAR;
+    };
+
+    const anillos = [
+        ...new Set(
+            datosOLTLima
+                .map(item => obtenerAnillo(item))
+                .filter(Boolean)
+        )
+    ].sort((a, b) => {
+        if (a === ANILLO_SIN_CLASIFICAR) return 1;
+        if (b === ANILLO_SIN_CLASIFICAR) return -1;
+        return a.localeCompare(b);
+    });
+
+    useEffect(() => {
+        if (anillos.length > 0 && !anilloSeleccionado) {
+            setAnilloSeleccionado(anillos[0]);
+        }
+    }, [anillos, anilloSeleccionado]);
+
     const subgrupos = [
         ...new Set(
             datosOLTLima
+                .filter(item => obtenerAnillo(item) === anilloSeleccionado)
                 .map(item => item.subgrupo)
                 .filter(Boolean)
         )
@@ -177,8 +221,13 @@ const enlaces70 = datosGrafico.filter(item => {
 
 //==================================
 
+    if (error && datos.length === 0) {
+        return <div className="load-error">{error}</div>;
+    }
+
     if (
     loading ||
+    !anilloSeleccionado ||
     !subgrupoSeleccionado ||
     !billSeleccionado
 ) {
@@ -210,7 +259,30 @@ const enlaces70 = datosGrafico.filter(item => {
 
                     <div className="filter-item">
 
-                        <label>Subgrupo:</label>
+                        <label>Anillo:</label>
+
+                        <select
+                            value={anilloSeleccionado}
+                            onChange={(e) => {
+                                setAnilloSeleccionado(e.target.value);
+                                setSubgrupoSeleccionado("");
+                                setBillSeleccionado("");
+                            }}
+                        >
+
+                            {anillos.map((anillo) => (
+                                <option key={anillo} value={anillo}>
+                                    {anillo}
+                                </option>
+                            ))}
+
+                        </select>
+
+                    </div>
+
+                    <div className="filter-item">
+
+                        <label>Nodo:</label>
 
                         <select
                             value={subgrupoSeleccionado}

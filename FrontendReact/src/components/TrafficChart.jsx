@@ -179,6 +179,47 @@ function TrafficChart({
     );
   };
 
+  const leyendaUso = (
+    <div
+      style={{
+        position: "absolute",
+        top: "8px",
+        right: "24px",
+        zIndex: 2,
+        width: "270px",
+        padding: "8px 10px",
+        border: "1px solid #6b7280",
+        borderRadius: "4px",
+        background: "rgba(255, 255, 255, 0.92)",
+        color: "#111827",
+        fontSize: "11px"
+      }}
+      aria-label="Rangos de uso del enlace"
+    >
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", textAlign: "center" }}>
+        <span>&lt; 50%</span>
+        <span>50% - &lt; 70%</span>
+        <span>&ge; 70%</span>
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          height: "15px",
+          marginTop: "3px",
+          border: "1px solid #6b7280"
+        }}
+      >
+        <span style={{ background: "#00c853" }} />
+        <span style={{ background: "#ffb300" }} />
+        <span style={{ background: "#ff1744" }} />
+      </div>
+      <div style={{ marginTop: "4px", fontWeight: "bold" }}>
+        Capacidad de enlace
+      </div>
+    </div>
+  );
+
   const leyendaCapacidad = (
     <div
       style={{
@@ -194,9 +235,7 @@ function TrafficChart({
         color: "#333"
       }}
     >
-      <span>
-        Capacidad de enlace:
-      </span>
+      <span>Capacidad de enlace:</span>
 
       <span style={{ display: "flex", alignItems: "center", gap: "7px" }}>
         <span
@@ -244,7 +283,8 @@ function TrafficChart({
 
   if (variant === "barras") {
     return (
-      <div style={{ width: "100%" }}>
+      <div style={{ width: "100%", position: "relative" }}>
+        {leyendaUso}
         <ResponsiveContainer width="100%" height={560}>
           <BarChart
             data={datosGrafico}
@@ -404,7 +444,8 @@ function TrafficChart({
   }
 
   return (
-    <div style={{ width: "100%" }}>
+    <div style={{ width: "100%", position: "relative" }}>
+    {leyendaUso}
     <ResponsiveContainer width="100%" height={560}>
   <ComposedChart
   data={datosGrafico}

@@ -9,5 +9,8 @@ def conectar():
         host=DB_HOST,
         user=DB_USER,
         password=DB_PASS,
-        database=DB_NAME
+        database=DB_NAME,
+        connect_timeout=5,
+        read_timeout=30,
+        write_timeout=30
     )

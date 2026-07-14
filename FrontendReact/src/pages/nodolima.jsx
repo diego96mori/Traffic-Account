@@ -12,6 +12,7 @@ function NodosLima() {
 
     const [loading, setLoading] = useState(true);
     const [datos, setDatos] = useState([]);
+    const [error, setError] = useState("");
 
     const [anilloSeleccionado, setAnilloSeleccionado] = useState("");
     const [subgrupoSeleccionado, setSubgrupoSeleccionado] = useState("");
@@ -32,9 +33,11 @@ function NodosLima() {
         api.get("/trafico")
             .then((response) => {
                 setDatos(response.data);
+                setError("");
             })
             .catch((error) => {
                 console.log(error);
+                setError("No se pudieron cargar los datos de tráfico.");
             })
             .finally(() => setLoading(false));
 
@@ -284,6 +287,10 @@ datosGrafico = Object.values(agrupado).map(item => ({
             const enlaces70 = datosGrafico.filter(item => {
             return Number(item.porcentaje_uso) >= 70;
             });
+
+    if (error && datos.length === 0) {
+        return <div className="load-error">{error}</div>;
+    }
 
     if (
     loading ||

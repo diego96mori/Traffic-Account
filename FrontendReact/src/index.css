@@ -109,3 +109,14 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+.load-error {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: #b91c1c;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}

@@ -10,6 +10,7 @@ function ProveedoresInternacionales() {
 
     const [loading, setLoading] = useState(true);
     const [datos, setDatos] = useState([]);
+    const [error, setError] = useState("");
     const [billSeleccionado, setBillSeleccionado] = useState("");
     const [anioSeleccionado, setAnioSeleccionado] = useState("");
     const [periodoActivo, setPeriodoActivo] = useState(null);
@@ -25,9 +26,11 @@ function ProveedoresInternacionales() {
         api.get("/trafico")
             .then((response) => {
                 setDatos(response.data);
+                setError("");
             })
             .catch((error) => {
                 console.log(error);
+                setError("No se pudieron cargar los datos de tráfico.");
             })
             .finally(() => setLoading(false));
 
@@ -130,6 +133,10 @@ const enlaces70 = datosGrafico.filter(item => {
 });
 
 //==================================
+
+    if (error && datos.length === 0) {
+        return <div className="load-error">{error}</div>;
+    }
 
     if (
     loading ||
