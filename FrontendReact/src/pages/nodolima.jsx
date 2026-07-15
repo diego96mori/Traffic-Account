@@ -137,19 +137,26 @@ function NodosLima() {
 
     }, [anilloSeleccionado, subgrupoSeleccionado, datosNodosLima]);
 
-    const bills = [
-        ...new Set(
+    const bills = Array.from(
+        new Map(
             datosNodosLima
                 .filter(
                     item =>
-                        item.subgrupo ===
-                        subgrupoSeleccionado
+                        item.subgrupo === subgrupoSeleccionado &&
+                        obtenerAnillo(item) === anilloSeleccionado
                 )
-                .map(
-                    item => item.bill_name
-                )
-        )
-    ].sort();
+                .map(item => [
+                    String(item.bill_id),
+                    {
+                        bill_id: String(item.bill_id),
+                        bill_name: item.bill_name
+                    }
+                ])
+        ).values()
+    ).sort((a, b) =>
+        a.bill_name.localeCompare(b.bill_name) ||
+        Number(a.bill_id) - Number(b.bill_id)
+    );
 
     useEffect(() => {
 
@@ -159,7 +166,7 @@ function NodosLima() {
         ) {
 
             setBillSeleccionado(
-                bills[0]
+                bills[0].bill_id
             );
 
         }
@@ -171,7 +178,7 @@ function NodosLima() {
             datosNodosLima
                 .filter(
                     item =>
-                        item.bill_name ===
+                        String(item.bill_id) ===
                         billSeleccionado
                 )
                 .map(
@@ -189,7 +196,7 @@ if (!mostrarTotal) {
         if (item.subgrupo !== subgrupoSeleccionado)
             return false;
 
-        if (item.bill_name !== billSeleccionado)
+        if (String(item.bill_id) !== billSeleccionado)
             return false;
 
         if (
@@ -407,10 +414,10 @@ datosGrafico = Object.values(agrupado).map(item => ({
                             {bills.map((bill) => (
 
                                 <option
-                                    key={bill}
-                                    value={bill}
+                                    key={bill.bill_id}
+                                    value={bill.bill_id}
                                 >
-                                    {bill}
+                                    {bill.bill_name} (ID {bill.bill_id})
                                 </option>
 
                             ))}
