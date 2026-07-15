@@ -12,6 +12,7 @@ function NodosLima() {
 
     const [loading, setLoading] = useState(true);
     const [datos, setDatos] = useState([]);
+    const [enlaces, setEnlaces] = useState([]);
     const [error, setError] = useState("");
 
     const [anilloSeleccionado, setAnilloSeleccionado] = useState("");
@@ -30,9 +31,13 @@ function NodosLima() {
 
     const cargarDatos = () => {
 
-        api.get("/trafico")
-            .then((response) => {
-                setDatos(response.data);
+        Promise.all([
+            api.get("/trafico"),
+            api.get("/bills")
+        ])
+            .then(([traficoResponse, billsResponse]) => {
+                setDatos(traficoResponse.data);
+                setEnlaces(billsResponse.data);
                 setError("");
             })
             .catch((error) => {
@@ -61,12 +66,16 @@ function NodosLima() {
         item => item.grupo === "NODOS LIMA"
     );
 
+    const enlacesNodosLima = enlaces.filter(
+        item => item.grupo === "NODOS LIMA"
+    );
+
     const obtenerAnillo = (item) =>
         item.anillo || ANILLO_SIN_CLASIFICAR;
 
     const anillos = [
         ...new Set(
-            datosNodosLima
+            enlacesNodosLima
                 .map(item => obtenerAnillo(item))
                 .filter(Boolean)
         )
@@ -93,7 +102,7 @@ function NodosLima() {
 
     const subgrupos = [
         ...new Set(
-            datosNodosLima
+            enlacesNodosLima
                 .filter(
                     item =>
                         obtenerAnillo(item) ===
@@ -123,7 +132,7 @@ function NodosLima() {
 
         if (
             subgrupoSeleccionado &&
-            !datosNodosLima.some(
+            !enlacesNodosLima.some(
                 item =>
                     item.subgrupo === subgrupoSeleccionado &&
                     obtenerAnillo(item) === anilloSeleccionado
@@ -135,11 +144,11 @@ function NodosLima() {
 
         }
 
-    }, [anilloSeleccionado, subgrupoSeleccionado, datosNodosLima]);
+    }, [anilloSeleccionado, subgrupoSeleccionado, enlacesNodosLima]);
 
     const bills = Array.from(
         new Map(
-            datosNodosLima
+            enlacesNodosLima
                 .filter(
                     item =>
                         item.subgrupo === subgrupoSeleccionado &&
@@ -417,7 +426,7 @@ datosGrafico = Object.values(agrupado).map(item => ({
                                     key={bill.bill_id}
                                     value={bill.bill_id}
                                 >
-                                    {bill.bill_name} (ID {bill.bill_id})
+                                    {bill.bill_name}
                                 </option>
 
                             ))}
