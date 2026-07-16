@@ -295,6 +295,8 @@ datosGrafico = Object.values(agrupado).map(item => ({
 
 }
 
+           const tieneHistorial = datosGrafico.length > 0;
+
            const enlaces5070 = datosGrafico.filter(item => {
             const uso = Number(item.porcentaje_uso);
             return uso >= 50 && uso < 70;
@@ -501,11 +503,11 @@ datosGrafico = Object.values(agrupado).map(item => ({
 
                 </div>
 
-                {billSeleccionado && (
+                {billSeleccionado && tieneHistorial && (
                     <KPICards data={datosGrafico} periodoActivo={periodoActivo} />
                 )}
 
-                {billSeleccionado && (
+                {billSeleccionado && tieneHistorial && (
 
                     <>
                         <h2
@@ -537,6 +539,23 @@ datosGrafico = Object.values(agrupado).map(item => ({
 
                     </>
 
+                )}
+
+                {billSeleccionado && !tieneHistorial && (
+                    <div
+                        style={{
+                            marginTop: "30px",
+                            padding: "24px",
+                            textAlign: "center",
+                            fontSize: "18px",
+                            fontWeight: "bold",
+                            background: "#ffffff",
+                            border: "1px solid #d1d5db",
+                            borderRadius: "8px"
+                        }}
+                    >
+                        Este enlace no tiene historial de tráfico.
+                    </div>
                 )}
 
         <div className="table-container">
