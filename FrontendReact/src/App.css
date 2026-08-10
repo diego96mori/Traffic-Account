@@ -1133,16 +1133,16 @@ th {
   font-weight: 800;
 }
 
-.inventario-numero,
-.inventario-uso,
-.inventario-variacion {
+.inventario-card .inventario-table td.inventario-numero,
+.inventario-card .inventario-table td.inventario-uso,
+.inventario-card .inventario-table td.inventario-variacion {
   font-variant-numeric: tabular-nums;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
 }
 
 .inventario-card .inventario-decision {
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .inventario-uso.uso-normal { background: #eaf8ee !important; color: #15803d; }
@@ -1163,7 +1163,7 @@ th {
   padding: 7px 6px;
   text-align: center;
   font: inherit;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   outline: none;
 }
