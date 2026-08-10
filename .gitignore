@@ -1,6 +1,7 @@
 Backend/venv/
 Backend/.venv312/
 Backend/__pycache__/
+Backend/data/inventario_trafico_cpu.json*
 *.pyc
 
 FrontendReact/node_modules/

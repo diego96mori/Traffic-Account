@@ -5,6 +5,7 @@ import TrafficChart from "../components/TrafficChart";
 import KPICards from "../components/KPICards";
 import ReportePDF from "../components/ReportePDF";
 import { formatGbps, formatPeriodo } from "../utils/formatters";
+import { iniciarPollingSeguro } from "../utils/polling";
 
 function ProveedoresInternacionales() {
 
@@ -23,7 +24,7 @@ function ProveedoresInternacionales() {
 
     const cargarDatos = () => {
 
-        api.get("/trafico")
+        return api.get("/trafico")
             .then((response) => {
                 setDatos(response.data);
                 setError("");
@@ -36,17 +37,7 @@ function ProveedoresInternacionales() {
 
     };
 
-    cargarDatos();
-
-    const intervalo = setInterval(() => {
-
-        console.log("Actualizando tráfico...");
-
-        cargarDatos();
-
-    }, 180000);
-
-    return () => clearInterval(intervalo);
+    return iniciarPollingSeguro(cargarDatos);
 
 }, []);
 

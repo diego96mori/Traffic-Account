@@ -5,6 +5,7 @@ import TrafficChart from "../components/TrafficChart";
 import KPICards from "../components/KPICards";
 import ReportePDF from "../components/ReportePDF";
 import { formatGbps, formatPeriodo } from "../utils/formatters";
+import { iniciarPollingSeguro } from "../utils/polling";
 
 const ANILLO_SIN_CLASIFICAR = "SIN ANILLO";
 
@@ -31,7 +32,7 @@ function NodosLima() {
 
     const cargarDatos = () => {
 
-        Promise.all([
+        return Promise.all([
             api.get("/trafico"),
             api.get("/bills")
         ])
@@ -48,17 +49,7 @@ function NodosLima() {
 
     };
 
-    cargarDatos();
-
-    const intervalo = setInterval(() => {
-
-        console.log("Actualizando tráfico...");
-
-        cargarDatos();
-
-    }, 180000);
-
-    return () => clearInterval(intervalo);
+    return iniciarPollingSeguro(cargarDatos);
 
 }, []);
 

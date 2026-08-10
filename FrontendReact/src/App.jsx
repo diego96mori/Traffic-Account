@@ -19,6 +19,7 @@ import ProveedoresInternacionales from "./pages/internacionales";
 import Core from "./pages/core";
 import OLTLima from "./pages/oltlima";
 import ResumenOLT from "./pages/resumenolt";
+import InventarioTrafico from "./pages/inventariotrafico";
 
 function App() {
   return (
@@ -70,6 +71,11 @@ function App() {
         <Route
           path="/resumenolt"
           element={<ResumenOLT />}
+        />
+
+        <Route
+          path="/inventario-trafico"
+          element={<InventarioTrafico />}
         />
 
         {/* CDN */}

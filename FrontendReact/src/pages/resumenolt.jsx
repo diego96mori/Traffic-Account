@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import api from "../service/api";
 import Sidebar from "../components/Sidebar";
 import { formatGbps } from "../utils/formatters";
+import { iniciarPollingSeguro } from "../utils/polling";
 
 const ANILLO_SIN_CLASIFICAR = "SIN ANILLO";
 const MESES = [
@@ -39,12 +40,11 @@ function ResumenOLT() {
             }
         };
 
-        cargarDatos();
-        const intervalo = setInterval(cargarDatos, 180000);
+        const detenerPolling = iniciarPollingSeguro(cargarDatos);
 
         return () => {
             activo = false;
-            clearInterval(intervalo);
+            detenerPolling();
         };
     }, []);
 

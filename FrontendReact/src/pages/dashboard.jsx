@@ -5,6 +5,7 @@ import TrafficChart from "../components/TrafficChart";
 import KPICards from "../components/KPICards";
 import ReportePDF from "../components/ReportePDF";
 import { formatGbps, formatPeriodo } from "../utils/formatters";
+import { iniciarPollingSeguro } from "../utils/polling";
 import {
   ResponsiveContainer,
   LineChart,
@@ -93,19 +94,11 @@ useEffect(() => {
         }
     };
 
-    cargarDatos(true);
-
-    const intervalo = setInterval(() => {
-
-        console.log("Actualizando tráfico...");
-
-        cargarDatos();
-
-    }, 180000); // 3 minutos
+    const detenerPolling = iniciarPollingSeguro(cargarDatos);
 
     return () => {
         activo = false;
-        clearInterval(intervalo);
+        detenerPolling();
     };
 
 }, []);
@@ -349,6 +342,7 @@ for (const mes of mesesDisponiblesAnioComparativo) {
                 {/* FILTRO */}
 
  <div
+    className="dashboard-filters"
     style={{
         display: "flex",
         alignItems: "center",

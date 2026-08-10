@@ -5,6 +5,7 @@ import TrafficChart from "../components/TrafficChart";
 import KPICards from "../components/KPICards";
 import ReportePDF from "../components/ReportePDF";
 import { formatGbps, formatPeriodo } from "../utils/formatters";
+import { iniciarPollingSeguro } from "../utils/polling";
 
 function CDN() {
 
@@ -45,14 +46,7 @@ useEffect(() => {
 
     };
 
-    cargarDatos();
-
-    const intervalo = setInterval(
-        cargarDatos,
-        180000
-    );
-
-    return () => clearInterval(intervalo);
+    return iniciarPollingSeguro(cargarDatos);
 
 }, []);
 
