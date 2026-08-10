@@ -53,7 +53,7 @@ function InventarioTrafico() {
     const [enlaces, setEnlaces] = useState([]);
     const [cpu, setCpu] = useState({});
     const [nodoSeleccionado, setNodoSeleccionado] = useState("");
-    const [mesSeleccionado, setMesSeleccionado] = useState("2026-07");
+    const [mesSeleccionado, setMesSeleccionado] = useState("");
     const [decisionSeleccionada, setDecisionSeleccionada] = useState("");
     const [filasEnEdicion, setFilasEnEdicion] = useState([]);
     const [filaGuardando, setFilaGuardando] = useState(null);
@@ -93,15 +93,6 @@ function InventarioTrafico() {
         return iniciarPollingSeguro(cargarInventario);
     }, []);
 
-    const periodos = useMemo(() => {
-        const [anio, mes] = mesSeleccionado.split("-").map(Number);
-        const actual = { anio, mes };
-        return [
-            moverMes(actual, -1),
-            actual
-        ];
-    }, [mesSeleccionado]);
-
     const nodos = useMemo(
         () => [...new Set(enlaces.flatMap(enlace => enlace.nodos))]
             .sort((a, b) => a.localeCompare(b)),
@@ -125,11 +116,29 @@ function InventarioTrafico() {
                 opciones.set(clavePeriodo(anio, mes), { anio, mes });
             }
         });
-        opciones.set("2026-07", { anio: 2026, mes: 7 });
         return [...opciones.values()].sort((a, b) =>
             a.anio === b.anio ? b.mes - a.mes : b.anio - a.anio
         );
     }, [cpu, trafico]);
+
+    const periodoActivo = useMemo(() => {
+        if (mesSeleccionado) return mesSeleccionado;
+        if (opcionesMes.length > 0) {
+            const ultimoPeriodo = opcionesMes[0];
+            return clavePeriodo(ultimoPeriodo.anio, ultimoPeriodo.mes);
+        }
+        const hoy = new Date();
+        return clavePeriodo(hoy.getFullYear(), hoy.getMonth() + 1);
+    }, [mesSeleccionado, opcionesMes]);
+
+    const periodos = useMemo(() => {
+        const [anio, mes] = periodoActivo.split("-").map(Number);
+        const actual = { anio, mes };
+        return [
+            moverMes(actual, -1),
+            actual
+        ];
+    }, [periodoActivo]);
 
     const enlacesVisibles = useMemo(
         () => nodoSeleccionado
@@ -344,7 +353,7 @@ function InventarioTrafico() {
                     </label>
                     <label>
                         <span>Mes</span>
-                        <select value={mesSeleccionado} onChange={event => setMesSeleccionado(event.target.value)}>
+                        <select value={periodoActivo} onChange={event => setMesSeleccionado(event.target.value)}>
                             {opcionesMes.map(periodo => (
                                 <option key={clavePeriodo(periodo.anio, periodo.mes)} value={clavePeriodo(periodo.anio, periodo.mes)}>
                                     {MESES[periodo.mes - 1]} {periodo.anio}
