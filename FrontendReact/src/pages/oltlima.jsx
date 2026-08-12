@@ -58,8 +58,7 @@ function OLTLima() {
 
     // Estos nombres representan el mismo nodo en ambas clasificaciones.
     const aliasNodo = {
-        CHORRILLOS: "CHORRILLOS II",
-        FLAMENGOS: "FLAMENGO"
+        CHORRILLOS: "CHORRILLOS II"
     };
 
     const obtenerAnillo = (item) => {

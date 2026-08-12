@@ -10,8 +10,7 @@ const MESES = [
     "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
 ];
 const ALIAS_NODO = {
-    CHORRILLOS: "CHORRILLOS II",
-    FLAMENGOS: "FLAMENGO"
+    CHORRILLOS: "CHORRILLOS II"
 };
 
 function ResumenOLT() {
