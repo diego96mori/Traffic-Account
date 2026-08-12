@@ -135,35 +135,50 @@ def cargar_enlaces_inventario():
         contenido = json.loads(
             INVENTARIO_ENLACES_PATH.read_text(encoding="utf-8")
         )
-        nodos = contenido["nodos"]
+        lugares = {
+            "Lima": contenido["nodos"],
+            "Provincia": contenido.get("provincia", {})
+        }
     except (OSError, json.JSONDecodeError, KeyError) as error:
         raise RuntimeError(
             "El catálogo de enlaces del inventario no se puede leer"
         ) from error
 
-    if not isinstance(nodos, dict):
+    if not all(isinstance(nodos, dict) for nodos in lugares.values()):
         raise RuntimeError("El catálogo de enlaces tiene un formato inválido")
 
     resultado = {}
-    for nodo, bill_ids in nodos.items():
-        if not isinstance(nodo, str) or not isinstance(bill_ids, list):
-            raise RuntimeError("El catálogo de enlaces tiene un formato inválido")
-        resultado[nodo] = [int(bill_id) for bill_id in bill_ids]
+    for lugar, nodos in lugares.items():
+        resultado[lugar] = {}
+        for nodo, bill_ids in nodos.items():
+            if not isinstance(nodo, str) or not isinstance(bill_ids, list):
+                raise RuntimeError("El catálogo de enlaces tiene un formato inválido")
+            resultado[lugar][nodo] = [int(bill_id) for bill_id in bill_ids]
 
     return resultado
 
 
-INVENTARIO_ENLACES_POR_NODO = cargar_enlaces_inventario()
+INVENTARIO_ENLACES_POR_LUGAR = cargar_enlaces_inventario()
 INVENTARIO_BILL_IDS = tuple(dict.fromkeys(
     bill_id
-    for bill_ids in INVENTARIO_ENLACES_POR_NODO.values()
+    for nodos in INVENTARIO_ENLACES_POR_LUGAR.values()
+    for bill_ids in nodos.values()
     for bill_id in bill_ids
 ))
 INVENTARIO_NODOS_POR_BILL = {
     bill_id: [
         nodo
-        for nodo, bill_ids in INVENTARIO_ENLACES_POR_NODO.items()
+        for nodos in INVENTARIO_ENLACES_POR_LUGAR.values()
+        for nodo, bill_ids in nodos.items()
         if bill_id in bill_ids
+    ]
+    for bill_id in INVENTARIO_BILL_IDS
+}
+INVENTARIO_LUGARES_POR_BILL = {
+    bill_id: [
+        lugar
+        for lugar, nodos in INVENTARIO_ENLACES_POR_LUGAR.items()
+        if any(bill_id in bill_ids for bill_ids in nodos.values())
     ]
     for bill_id in INVENTARIO_BILL_IDS
 }
@@ -394,7 +409,8 @@ def consultar_inventario_bd():
         {
             "bill_id": enlace["bill_id"],
             "bill_name": enlace["bill_name"],
-            "nodos": INVENTARIO_NODOS_POR_BILL.get(enlace["bill_id"], [])
+            "nodos": INVENTARIO_NODOS_POR_BILL.get(enlace["bill_id"], []),
+            "lugares": INVENTARIO_LUGARES_POR_BILL.get(enlace["bill_id"], [])
         }
         for enlace in enlaces_bd
     ]

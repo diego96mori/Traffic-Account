@@ -46,6 +46,7 @@ export function crearPdfInventario({
     filas,
     periodos,
     meses,
+    lugar = "Todos",
     nodo = "Callao",
     descargar = true
 }) {
@@ -69,7 +70,7 @@ export function crearPdfInventario({
     pdf.text("WI-NET", 12, 12);
     pdf.setTextColor(255, 255, 255);
     pdf.setFontSize(14);
-    pdf.text(`Inventario de Trafico - ${nodo}`, 12, 21);
+    pdf.text(`Inventario de Trafico - ${lugar} - ${nodo}`, 12, 21);
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(8);
     pdf.text(`Periodo: ${periodoTexto}`, anchoPagina - 12, 12, { align: "right" });
@@ -193,7 +194,7 @@ export function crearPdfInventario({
     });
 
     if (descargar) {
-        const nombre = `Inventario_Trafico_${nodo}_${meses[periodos[0].mes - 1]}_${meses[periodos[1].mes - 1]}_${periodos[1].anio}.pdf`;
+        const nombre = `Inventario_Trafico_${lugar}_${nodo}_${meses[periodos[0].mes - 1]}_${meses[periodos[1].mes - 1]}_${periodos[1].anio}.pdf`;
         pdf.save(nombre.replaceAll(" ", "_"));
     }
 

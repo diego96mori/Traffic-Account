@@ -820,6 +820,14 @@ th {
   transform: translateY(-1px);
 }
 
+.inventario-reporte-btn:disabled {
+  background: #98a2b3;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: .7;
+  transform: none;
+}
+
 .inventario-reporte-excel-btn {
   border: 1px solid #15803d;
   background: linear-gradient(135deg, #22c55e 0%, #16a34a 55%, #15803d 100%);

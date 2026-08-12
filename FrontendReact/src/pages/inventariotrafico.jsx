@@ -52,6 +52,7 @@ function InventarioTrafico() {
     const [trafico, setTrafico] = useState([]);
     const [enlaces, setEnlaces] = useState([]);
     const [cpu, setCpu] = useState({});
+    const [lugarSeleccionado, setLugarSeleccionado] = useState("Todos");
     const [nodoSeleccionado, setNodoSeleccionado] = useState("");
     const [mesSeleccionado, setMesSeleccionado] = useState("");
     const [decisionSeleccionada, setDecisionSeleccionada] = useState("");
@@ -67,7 +68,8 @@ function InventarioTrafico() {
             setEnlaces((response.data.enlaces || []).map(enlace => ({
                 billId: Number(enlace.bill_id),
                 nombre: enlace.bill_name,
-                nodos: enlace.nodos || []
+                nodos: enlace.nodos || [],
+                lugares: enlace.lugares || []
             })));
             if (incluirCpu) {
                 const cpuCargado = {};
@@ -93,15 +95,22 @@ function InventarioTrafico() {
         return iniciarPollingSeguro(cargarInventario);
     }, []);
 
+    const enlacesPorLugar = useMemo(() => {
+        if (lugarSeleccionado === "Todos") return enlaces;
+        return enlaces.filter(enlace => enlace.lugares.includes(lugarSeleccionado));
+    }, [enlaces, lugarSeleccionado]);
+
     const nodos = useMemo(
-        () => [...new Set(enlaces.flatMap(enlace => enlace.nodos))]
+        () => [...new Set(enlacesPorLugar.flatMap(enlace => enlace.nodos))]
             .sort((a, b) => a.localeCompare(b)),
-        [enlaces]
+        [enlacesPorLugar]
     );
 
     const opcionesMes = useMemo(() => {
         const opciones = new Map();
+        const billIdsDisponibles = new Set(enlacesPorLugar.map(enlace => enlace.billId));
         trafico.forEach(item => {
+            if (!billIdsDisponibles.has(Number(item.bill_id))) return;
             const anio = Number(item.anio);
             const mes = Number(item.mes);
             if (Number.isFinite(anio) && mes >= 1 && mes <= 12) {
@@ -110,6 +119,7 @@ function InventarioTrafico() {
         });
         Object.keys(cpu).forEach(clave => {
             const partes = clave.split("-");
+            if (!billIdsDisponibles.has(Number(partes[0]))) return;
             const anio = Number(partes[1]);
             const mes = Number(partes[2]);
             if (Number.isFinite(anio) && mes >= 1 && mes <= 12) {
@@ -119,7 +129,7 @@ function InventarioTrafico() {
         return [...opciones.values()].sort((a, b) =>
             a.anio === b.anio ? b.mes - a.mes : b.anio - a.anio
         );
-    }, [cpu, trafico]);
+    }, [cpu, enlacesPorLugar, trafico]);
 
     const periodoActivo = useMemo(() => {
         if (mesSeleccionado) return mesSeleccionado;
@@ -142,10 +152,19 @@ function InventarioTrafico() {
 
     const enlacesVisibles = useMemo(
         () => nodoSeleccionado
-            ? enlaces.filter(enlace => enlace.nodos.includes(nodoSeleccionado))
-            : enlaces,
-        [enlaces, nodoSeleccionado]
+            ? enlacesPorLugar.filter(enlace => enlace.nodos.includes(nodoSeleccionado))
+            : enlacesPorLugar,
+        [enlacesPorLugar, nodoSeleccionado]
     );
+
+    const cambiarLugar = (lugar) => {
+        setLugarSeleccionado(lugar);
+        setNodoSeleccionado("");
+        setMesSeleccionado("");
+        setDecisionSeleccionada("");
+        setFilasEnEdicion([]);
+        setMensajeGuardado("");
+    };
 
     const traficoPorEnlacePeriodo = useMemo(() => {
         const mapa = new Map();
@@ -279,6 +298,7 @@ function InventarioTrafico() {
             filas: filasReporte,
             periodos,
             meses: MESES,
+            lugar: lugarSeleccionado,
             nodo: nodoSeleccionado || "TODOS LOS NODOS"
         });
     };
@@ -291,6 +311,7 @@ function InventarioTrafico() {
                 filas: filasReporte,
                 periodos,
                 meses: MESES,
+                lugar: lugarSeleccionado,
                 nodo: nodoSeleccionado || "TODOS LOS NODOS",
                 decision: decisionSeleccionada
                     ? decisionSeleccionada.charAt(0).toUpperCase() + decisionSeleccionada.slice(1)
@@ -316,13 +337,20 @@ function InventarioTrafico() {
                     <div>
                         <span>CONTROL DE CAPACIDAD MENSUAL</span>
                         <h1>Inventario Tráfico</h1>
-                        <p>{nodoSeleccionado || "Todos los nodos"} · Percentil 95, capacidad, uso y decisión automática</p>
+                        <p>
+                            {`${lugarSeleccionado} · ${nodoSeleccionado || "Todos los nodos"}`}
+                            {" · Percentil 95, capacidad, uso y decisión automática"}
+                        </p>
                     </div>
                     <div className="inventario-heading-actions">
                         <div className="inventario-periodo-chip">
                             {MESES[periodos[0].mes - 1]} {periodos[0].anio} — {MESES[periodos[1].mes - 1]} {periodos[1].anio}
                         </div>
-                        <button type="button" className="inventario-reporte-btn" onClick={generarReportePdf}>
+                        <button
+                            type="button"
+                            className="inventario-reporte-btn"
+                            onClick={generarReportePdf}
+                        >
                             Reporte PDF
                         </button>
                         <button
@@ -345,15 +373,29 @@ function InventarioTrafico() {
 
                 <section className="inventario-filtros" aria-label="Filtros del inventario">
                     <label>
+                        <span>Lugar</span>
+                        <select value={lugarSeleccionado} onChange={event => cambiarLugar(event.target.value)}>
+                            <option value="Todos">Todos</option>
+                            <option value="Lima">Lima</option>
+                            <option value="Provincia">Provincia</option>
+                        </select>
+                    </label>
+                    <label>
                         <span>Nodo</span>
-                        <select value={nodoSeleccionado} onChange={event => setNodoSeleccionado(event.target.value)}>
+                        <select
+                            value={nodoSeleccionado}
+                            onChange={event => setNodoSeleccionado(event.target.value)}
+                        >
                             <option value="">Todos</option>
                             {nodos.map(nodo => <option key={nodo} value={nodo}>{nodo}</option>)}
                         </select>
                     </label>
                     <label>
                         <span>Mes</span>
-                        <select value={periodoActivo} onChange={event => setMesSeleccionado(event.target.value)}>
+                        <select
+                            value={periodoActivo}
+                            onChange={event => setMesSeleccionado(event.target.value)}
+                        >
                             {opcionesMes.map(periodo => (
                                 <option key={clavePeriodo(periodo.anio, periodo.mes)} value={clavePeriodo(periodo.anio, periodo.mes)}>
                                     {MESES[periodo.mes - 1]} {periodo.anio}

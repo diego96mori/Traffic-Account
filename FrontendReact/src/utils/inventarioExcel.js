@@ -46,7 +46,7 @@ function limpiarNombreArchivo(texto) {
         .replace(/^_+|_+$/g, "");
 }
 
-export async function crearLibroExcelInventario({ filas, periodos, meses, nodo, decision }) {
+export async function crearLibroExcelInventario({ filas, periodos, meses, lugar, nodo, decision }) {
     const moduloExcel = await import("exceljs");
     const ExcelJS = moduloExcel.default || moduloExcel;
     const libro = new ExcelJS.Workbook();
@@ -88,7 +88,7 @@ export async function crearLibroExcelInventario({ filas, periodos, meses, nodo, 
 
     const periodoTexto = `${meses[periodos[0].mes - 1]} ${periodos[0].anio} — ${meses[periodos[1].mes - 1]} ${periodos[1].anio}`;
     hoja.mergeCells("A2:P2");
-    hoja.getCell("A2").value = `Periodo: ${periodoTexto}  |  Nodo: ${nodo}  |  Decisión del último mes: ${decision || "Todas"}`;
+    hoja.getCell("A2").value = `Periodo: ${periodoTexto}  |  Lugar: ${lugar}  |  Nodo: ${nodo}  |  Decisión del último mes: ${decision || "Todas"}`;
     hoja.getCell("A2").font = { name: "Aptos", size: 10, color: { argb: "FF475467" } };
     hoja.getCell("A2").alignment = { horizontal: "left", vertical: "middle" };
     hoja.getRow(2).height = 25;
@@ -223,7 +223,7 @@ export async function descargarExcelInventario(configuracion) {
     const enlace = document.createElement("a");
     const periodo = configuracion.periodos.at(-1);
     const nombre = limpiarNombreArchivo(
-        `Inventario_Trafico_${configuracion.nodo}_${configuracion.meses[periodo.mes - 1]}_${periodo.anio}`
+        `Inventario_Trafico_${configuracion.lugar}_${configuracion.nodo}_${configuracion.meses[periodo.mes - 1]}_${periodo.anio}`
     );
     enlace.href = url;
     enlace.download = `${nombre}.xlsx`;
